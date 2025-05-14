@@ -1,0 +1,127 @@
+:root {
+    --primary-color: #FF6B00;     /* Naranja principal */
+    --primary-dark: #CC5500;      /* Naranja oscuro */
+    --primary-light: #FFB380;     /* Naranja claro */
+    --accent-color: #FF8533;      /* Naranja acento */
+    --background-light: #FFF5EB;  /* Fondo claro con tinte naranja */
+    --text-dark: #333333;         /* Texto oscuro */
+    --text-light: #FFFFFF;        /* Texto claro */
+    --error-color: #FF3B30;       /* Rojo para errores */
+    --success-color: #34C759;     /* Verde para éxito */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.app-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: var(--primary-color);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    color: var(--text-light) !important;
+    font-weight: 600;
+}
+
+.nav-link {
+    color: var(--text-light) !important;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.nav-link:hover {
+    opacity: 1;
+}
+
+.card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    border: none;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.5rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
+}
+
+.alert-success {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+}
+
+.alert-danger {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+}
+
+#map {
+    height: 400px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.denuncia-item {
+    border-left: 4px solid var(--primary-color);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: white;
+    border-radius: 0 10px 10px 0;
+    transition: transform 0.3s ease;
+}
+
+.denuncia-item:hover {
+    transform: translateX(5px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin: 1rem 0;
+    }
+    
+    #map {
+        height: 300px;
+    }
+}

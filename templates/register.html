@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Denuncias Ciudadanas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <style>
+        :root {
+            --primary-color: #FF6B00;
+            --primary-dark: #CC5500;
+            --primary-light: #FFB380;
+            --accent-color: #FF8533;
+        }
+        .auth-body {
+            background-color: var(--primary-light) !important;
+        }
+        .card-header {
+            background-color: var(--primary-color) !important;
+        }
+        .btn-primary {
+            background-color: var(--primary-color) !important;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark) !important;
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+            z-index: 10;
+        }
+        .toggle-password:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body class="auth-body">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-check"></i>
+                Denuncias Ciudadanas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-house-door"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="register.html">
+                            <i class="bi bi-person-plus"></i> Registrarse
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person-plus"></i> Registro
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="registerForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre Completo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="nombre" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese su nombre
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" required>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese un correo electrónico válido
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <div class="password-container">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="password" required minlength="8">
+                                        <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        La contraseña debe tener al menos 8 caracteres
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                                <div class="password-container">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-lock-fill"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="confirmPassword" required>
+                                        <i class="bi bi-eye-slash toggle-password" id="toggleConfirmPassword"></i>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Las contraseñas no coinciden
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-person-plus me-2"></i>
+                                    Crear Cuenta
+                                </button>
+                            </div>
+                            <p class="text-center mt-3">
+                                ¿Ya tienes una cuenta? <a href="login.html" class="text-primary">Inicia sesión aquí</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Denuncias Ciudadanas. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Función para alternar la visibilidad de la contraseña
+        function togglePasswordVisibility(inputId, toggleId) {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.classList.remove('bi-eye-slash');
+                toggle.classList.add('bi-eye');
+            } else {
+                input.type = 'password';
+                toggle.classList.remove('bi-eye');
+                toggle.classList.add('bi-eye-slash');
+            }
+        }
+
+        // Event listeners para los botones de mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            togglePasswordVisibility('password', 'togglePassword');
+        });
+
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword');
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                const nombre = document.getElementById('nombre').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPassword').setCustomValidity('Las contraseñas no coinciden');
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                try {
+                    await auth.register(nombre, email, password);
+                } catch (error) {
+                    alert('Error al registrar: ' + error.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

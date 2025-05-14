@@ -1,0 +1,25 @@
+{
+  "name": "denuncias-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "mapbox-gl": "^2.15.0",
+    "@mapbox/mapbox-gl-geocoder": "^5.0.1",
+    "axios": "^1.6.2",
+    "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "cross-env": "^7.0.3"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "netlify deploy --prod"
+  }
+}

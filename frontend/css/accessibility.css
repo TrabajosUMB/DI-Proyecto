@@ -1,0 +1,220 @@
+/* Estilos optimizados para accesibilidad y usuarios de la tercera edad */
+
+:root {
+    /* Tamaños de fuente más grandes */
+    --font-size-base: 16px;
+    --font-size-large: 20px;
+    --font-size-xlarge: 24px;
+    
+    /* Colores de alto contraste */
+    --color-text: #000000;
+    --color-background: #FFFFFF;
+    --color-primary: #2C5282;
+    --color-secondary: #48BB78;
+    --color-error: #E53E3E;
+    --color-success: #38A169;
+    
+    /* Espaciado generoso */
+    --spacing-base: 1rem;
+    --spacing-large: 1.5rem;
+    --spacing-xlarge: 2rem;
+}
+
+/* Modo de alto contraste */
+@media (prefers-contrast: high) {
+    :root {
+        --color-text: #000000;
+        --color-background: #FFFFFF;
+        --color-primary: #000099;
+        --color-secondary: #006600;
+    }
+}
+
+/* Estilos base */
+body {
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--color-text);
+    background-color: var(--color-background);
+}
+
+/* Botones grandes y claros */
+.btn {
+    font-size: var(--font-size-large);
+    padding: var(--spacing-base) var(--spacing-large);
+    border-radius: 8px;
+    border: 2px solid currentColor;
+    margin: var(--spacing-base);
+    min-height: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+/* Formularios accesibles */
+.form-group {
+    margin-bottom: var(--spacing-large);
+}
+
+label {
+    font-size: var(--font-size-large);
+    display: block;
+    margin-bottom: var(--spacing-base);
+    font-weight: bold;
+}
+
+input, select, textarea {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-base);
+    width: 100%;
+    border: 2px solid var(--color-primary);
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+/* Mensajes y alertas */
+.alert {
+    padding: var(--spacing-large);
+    border-radius: 8px;
+    margin: var(--spacing-base) 0;
+    font-size: var(--font-size-large);
+    border: 2px solid currentColor;
+}
+
+.alert-error {
+    background-color: #FFF5F5;
+    color: var(--color-error);
+    border-color: var(--color-error);
+}
+
+.alert-success {
+    background-color: #F0FFF4;
+    color: var(--color-success);
+    border-color: var(--color-success);
+}
+
+/* Ayudas visuales */
+.help-text {
+    font-size: var(--font-size-base);
+    color: #4A5568;
+    margin-top: 0.5rem;
+}
+
+/* Iconos grandes y claros */
+.icon {
+    width: 32px;
+    height: 32px;
+    margin-right: var(--spacing-base);
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text: #FFFFFF;
+        --color-background: #1A202C;
+        --color-primary: #90CDF4;
+        --color-secondary: #9AE6B4;
+    }
+}
+
+/* Características de accesibilidad */
+*:focus {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Enlaces claros */
+a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    padding: 0.5rem;
+}
+
+a:hover {
+    text-decoration: none;
+    background-color: rgba(44, 82, 130, 0.1);
+}
+
+/* Tarjetas de contenido */
+.card {
+    background-color: var(--color-background);
+    border: 2px solid var(--color-primary);
+    border-radius: 8px;
+    padding: var(--spacing-large);
+    margin: var(--spacing-base) 0;
+}
+
+/* Navegación simplificada */
+.nav-button {
+    font-size: var(--font-size-xlarge);
+    padding: var(--spacing-large);
+    margin: var(--spacing-base);
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+/* Tutorial paso a paso */
+.tutorial-step {
+    display: flex;
+    align-items: center;
+    margin: var(--spacing-large) 0;
+    padding: var(--spacing-base);
+    background-color: rgba(44, 82, 130, 0.1);
+    border-radius: 8px;
+}
+
+.tutorial-number {
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+    margin-right: var(--spacing-large);
+    color: var(--color-primary);
+}
+
+/* Modo de asistencia */
+.assistance-mode {
+    position: fixed;
+    bottom: var(--spacing-base);
+    right: var(--spacing-base);
+    padding: var(--spacing-base);
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+    :root {
+        --font-size-base: 18px;
+        --font-size-large: 22px;
+        --font-size-xlarge: 26px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin: var(--spacing-base) 0;
+    }
+}
