@@ -1,7 +1,8 @@
 # 🚨 Sistema de Denuncias Ciudadanas con IA
+# CivicAlert
 
 ## 📝 Descripción
-Sistema web avanzado para la gestión de denuncias ciudadanas que permite reportar problemas urbanos como baches, utilizando inteligencia artificial para análisis automático de severidad y geolocalización precisa.
+Sistema web avanzado para la gestión de denuncias ciudadanas que permite reportar problemas urbanos como baches, utilizando inteligencia artificial para análisis automático de severidad y geolocalización precisa. El sistema utiliza YOLOv8 para detección de baches y GPT-4 para análisis de descripciones, junto con una arquitectura moderna desplegada en servicios cloud.
 
 ## 🛠️ Tecnologías Utilizadas
 - **Frontend**:
@@ -11,7 +12,7 @@ Sistema web avanzado para la gestión de denuncias ciudadanas que permite report
   - MediaDevices API para acceso a cámara
 - **Backend**:
   - Node.js + Express.js
-  - MySQL para datos principales
+  - MongoDB para base de datos principal
   - Redis para caché
   - JWT para autenticación
 - **IA y ML**:
@@ -20,32 +21,34 @@ Sistema web avanzado para la gestión de denuncias ciudadanas que permite report
   - FastAPI para servicios de IA
 - **DevOps**:
   - Docker + Docker Compose
-  - Nginx como proxy reverso
+  - Netlify para frontend
+  - Render para backend
   - GPU support para inferencia
 
-## 📁 Estructura del Proyecto
+## 📛 Estructura del Proyecto
 ```
 proyecto/
-├── frontend/
-│   ├── src/
-│   │   ├── js/
-│   │   └── css/
+├── frontend/          # Cliente web con Vite + JavaScript
+│   ├── js/           # Lógica de la aplicación
+│   ├── css/          # Estilos y temas
 │   ├── index.html
 │   ├── package.json
 │   └── Dockerfile
-├── backend/
-│   ├── routes/
-│   ├── middleware/
-│   ├── config/
+├── backend/           # API REST con Node.js
+│   ├── routes/       # Rutas de la API
+│   ├── middleware/   # Middlewares de autenticación
+│   ├── models/       # Modelos de MongoDB
+│   ├── config/       # Configuración
 │   └── Dockerfile
-├── ai-service/
-│   ├── main.py
+├── ai-service/        # Servicio de IA con FastAPI
+│   ├── main.py       # Análisis con YOLOv8 y GPT-4
 │   ├── requirements.txt
 │   └── Dockerfile
-├── database/
-│   └── schema.sql
-├── docker-compose.yml
-├── .env
+├── database/          # Esquemas de base de datos
+│   ├── schema.mongodb.js  # Esquema MongoDB
+│   └── schema.sql        # (Deprecated)
+├── docker-compose.yml  # Orquestación de servicios
+├── .env              # Variables de entorno
 └── README.md
 ```
 
@@ -63,20 +66,17 @@ git clone <url-repositorio>
 cd proyecto
 ```
 
-2. Configurar variables de entorno:
+2. Configurar variables de entorno (.env):
 ```env
 # Database
-DB_HOST=db
-DB_USER=root
-DB_PASSWORD=your_secure_password
-DB_NAME=denuncias_db
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/denuncias_db
 
 # Server
 PORT=3003
 NODE_ENV=production
 
 # JWT
-JWT_SECRET=your_very_secure_jwt_secret_key
+JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRES_IN=24h
 
 # Mapbox
@@ -88,6 +88,9 @@ OPENAI_API_KEY=your_openai_api_key
 # Redis
 REDIS_HOST=redis
 REDIS_PORT=6379
+
+# AI Service
+AI_SERVICE_URL=http://ai-service:8000
 ```
 
 3. Iniciar servicios:
@@ -121,14 +124,23 @@ docker-compose up --build
 - Transiciones suaves
 - Modo oscuro automático
 
-## 🔒 Seguridad
-- Autenticación JWT
-- Rate limiting
-- Sanitización de entradas
-- Validación de datos
-- CORS configurado
-- Headers seguros (Helmet)
-- Encriptación bcrypt
+## 🔑 Seguridad
+- Autenticación JWT con rotación de tokens
+- Rate limiting para prevenir ataques de fuerza bruta (100 peticiones/15min)
+- Sanitización de entradas y validación de datos
+- CORS configurado para dominios específicos
+- Headers seguros con Helmet
+- Encriptación bcrypt para contraseñas
+- Variables de entorno seguras
+- Validación de esquemas MongoDB
+
+## 🌐 URLs de Despliegue
+
+- Frontend: https://denuncias-ciudadanas.netlify.app
+- Backend API: https://denuncias-api.onrender.com
+- Servicio IA: https://denuncias-ai.huggingface.co
+
+Nota: Asegúrate de que CORS_ORIGIN en el backend coincida con el dominio de Netlify.
 
 ## 📊 Monitoreo
 - Logs centralizados
@@ -138,11 +150,15 @@ docker-compose up --build
 
 ## 🔄 Estado del Proyecto
 - [x] Dockerización completa
-- [x] Integración de Mapbox
-- [x] Implementación de IA
-- [x] Sistema de cámara
-- [x] API REST
+- [x] Integración de Mapbox con geocodificación
+- [x] Implementación de IA (YOLOv8 + GPT-4)
+- [x] Sistema de cámara y procesamiento de imágenes
+- [x] API REST con autenticación JWT
 - [x] Caché con Redis
+- [x] Despliegue en Netlify (Frontend)
+- [x] Despliegue en Render (Backend)
+- [x] Base de datos MongoDB Atlas
+- [x] Servicio de IA en contenedor
 - [ ] Tests E2E
 - [ ] CI/CD Pipeline
 - [ ] Escalado automático

@@ -1,42 +1,19 @@
-const mysql = require('mysql2/promise');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Configuración de la base de datos
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: 'denuncias_ciudadanas',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-// Función para probar la conexión
-const testConnection = async () => {
+// Configuración de la base de datos MongoDB
+const connectDB = async () => {
     try {
-        const connection = await pool.getConnection();
-        console.log('Conexión a la base de datos establecida correctamente');
-        connection.release();
+        const conn = await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+
+        console.log('MongoDB conectado:', conn.connection.host);
     } catch (error) {
-        console.error('Error al conectar a la base de datos:', error);
-        throw error;
+        console.error('Error al conectar a MongoDB:', error);
+        process.exit(1);
     }
 };
 
-// Función para ejecutar consultas
-const query = async (sql, params) => {
-    try {
-        const [results] = await pool.execute(sql, params);
-        return results;
-    } catch (error) {
-        console.error('Error al ejecutar la consulta:', error);
-        throw error;
-    }
-};
-
-module.exports = {
-    pool,
-    testConnection,
-    query
-};
+module.exports = connectDB;

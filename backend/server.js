@@ -5,8 +5,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-const mysql = require('mysql2/promise');
-const { testConnection } = require('./config/db');
+const connectDB = require('./config/db');
 require('dotenv').config();
 
 const app = express();
@@ -43,12 +42,8 @@ if (!require('fs').existsSync(uploadDir)) {
 // Servir archivos estáticos de uploads
 app.use('/uploads', express.static(uploadDir));
 
-// Probar conexión a la base de datos
-testConnection()
-    .then(() => {
-        console.log('Base de datos conectada exitosamente');
-    })
-    .catch((error) => {
+// Conectar a MongoDB
+connectDB().then(() => {
         console.error('Error al conectar la base de datos:', error);
         process.exit(1);
     });
