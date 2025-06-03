@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const Denuncia = require('../models/Denuncia');
 const { verifyToken } = require('../middleware/auth');
 
 // Configuración de multer para subida de archivos
@@ -31,75 +32,66 @@ const upload = multer({
 });
 
 // Obtener todas las denuncias
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const [denuncias] = await req.app.locals.db.execute(`
-            SELECT d.*, u.nombre as usuario_nombre 
-            FROM denuncias d 
-            JOIN usuarios u ON d.usuario_id = u.id 
-            WHERE d.deleted_at IS NULL 
-            ORDER BY d.fecha DESC
-        `);
+        const denuncias = await Denuncia.find()
+            .sort({ createdAt: -1 })
+            .populate('usuario', 'nombre email');
 
         res.json({
             success: true,
-            denuncias
+            data: denuncias
         });
     } catch (error) {
         console.error('Error al obtener denuncias:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener las denuncias'
+            message: 'Error al obtener denuncias'
         });
     }
 });
 
-// Crear nueva denuncia
+// Crear una nueva denuncia
 router.post('/', verifyToken, upload.single('imagen'), async (req, res) => {
     try {
-        const { tipo, descripcion, latitud, longitud } = req.body;
+        const { titulo, descripcion, latitud, longitud } = req.body;
         const usuario_id = req.user.id;
-        const imagen = req.file ? req.file.filename : null;
 
-        const [result] = await req.app.locals.db.execute(
-            'INSERT INTO denuncias (tipo, descripcion, latitud, longitud, imagen, usuario_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [tipo, descripcion, latitud, longitud, imagen, usuario_id]
-        );
+        const denuncia = await Denuncia.create({
+            titulo,
+            descripcion,
+            ubicacion: {
+                type: 'Point',
+                coordinates: [parseFloat(longitud), parseFloat(latitud)]
+            },
+            usuario: usuario_id,
+            imagen: req.file ? {
+                url: `/uploads/${req.file.filename}`,
+                public_id: req.file.filename
+            } : undefined
+        });
 
         res.status(201).json({
             success: true,
             message: 'Denuncia creada exitosamente',
-            denuncia: {
-                id: result.insertId,
-                tipo,
-                descripcion,
-                latitud,
-                longitud,
-                imagen,
-                usuario_id
-            }
+            data: denuncia
         });
     } catch (error) {
         console.error('Error al crear denuncia:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al crear la denuncia'
+            message: 'Error al crear denuncia'
         });
     }
 });
 
 // Obtener una denuncia específica
-router.get('/:id', verifyToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const [denuncias] = await req.app.locals.db.execute(
-            `SELECT d.*, u.nombre as usuario_nombre 
-             FROM denuncias d 
-             JOIN usuarios u ON d.usuario_id = u.id 
-             WHERE d.id = ? AND d.deleted_at IS NULL`,
-            [req.params.id]
-        );
+        const denuncia = await Denuncia.findById(req.params.id)
+            .populate('usuario', 'nombre email');
 
-        if (denuncias.length === 0) {
+        if (!denuncia) {
             return res.status(404).json({
                 success: false,
                 message: 'Denuncia no encontrada'
@@ -108,77 +100,80 @@ router.get('/:id', verifyToken, async (req, res) => {
 
         res.json({
             success: true,
-            denuncia: denuncias[0]
+            data: denuncia
         });
     } catch (error) {
         console.error('Error al obtener denuncia:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al obtener la denuncia'
+            message: 'Error al obtener denuncia'
         });
     }
 });
 
 // Actualizar una denuncia
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', verifyToken, upload.single('imagen'), async (req, res) => {
     try {
-        const { tipo, descripcion, estado } = req.body;
+        const { titulo, descripcion, latitud, longitud } = req.body;
         const denuncia_id = req.params.id;
+        const usuario_id = req.user.id;
 
         // Verificar si la denuncia existe y pertenece al usuario
-        const [denuncias] = await req.app.locals.db.execute(
-            'SELECT * FROM denuncias WHERE id = ? AND usuario_id = ? AND deleted_at IS NULL',
-            [denuncia_id, req.user.id]
-        );
+        const denuncia = await Denuncia.findOne({ _id: denuncia_id, usuario: usuario_id });
 
-        if (denuncias.length === 0) {
+        if (!denuncia) {
             return res.status(404).json({
                 success: false,
                 message: 'Denuncia no encontrada o no autorizada'
             });
         }
 
-        await req.app.locals.db.execute(
-            'UPDATE denuncias SET tipo = ?, descripcion = ?, estado = ? WHERE id = ?',
-            [tipo, descripcion, estado, denuncia_id]
-        );
+        // Actualizar la denuncia
+        denuncia.titulo = titulo;
+        denuncia.descripcion = descripcion;
+        denuncia.ubicacion = {
+            type: 'Point',
+            coordinates: [parseFloat(longitud), parseFloat(latitud)]
+        };
+
+        if (req.file) {
+            denuncia.imagen = {
+                url: `/uploads/${req.file.filename}`,
+                public_id: req.file.filename
+            };
+        }
+
+        await denuncia.save();
 
         res.json({
             success: true,
-            message: 'Denuncia actualizada exitosamente'
+            message: 'Denuncia actualizada exitosamente',
+            data: denuncia
         });
     } catch (error) {
         console.error('Error al actualizar denuncia:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al actualizar la denuncia'
+            message: 'Error al actualizar denuncia'
         });
     }
 });
 
-// Eliminar una denuncia (soft delete)
+// Eliminar una denuncia
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const denuncia_id = req.params.id;
+        const usuario_id = req.user.id;
 
         // Verificar si la denuncia existe y pertenece al usuario
-        const [denuncias] = await req.app.locals.db.execute(
-            'SELECT * FROM denuncias WHERE id = ? AND usuario_id = ? AND deleted_at IS NULL',
-            [denuncia_id, req.user.id]
-        );
+        const denuncia = await Denuncia.findOneAndDelete({ _id: denuncia_id, usuario: usuario_id });
 
-        if (denuncias.length === 0) {
+        if (!denuncia) {
             return res.status(404).json({
                 success: false,
                 message: 'Denuncia no encontrada o no autorizada'
             });
         }
-
-        // Realizar soft delete
-        await req.app.locals.db.execute(
-            'UPDATE denuncias SET deleted_at = NOW() WHERE id = ?',
-            [denuncia_id]
-        );
 
         res.json({
             success: true,
@@ -188,7 +183,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
         console.error('Error al eliminar denuncia:', error);
         res.status(500).json({
             success: false,
-            message: 'Error al eliminar la denuncia'
+            message: 'Error al eliminar denuncia'
         });
     }
 });

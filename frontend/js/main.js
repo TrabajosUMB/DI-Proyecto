@@ -1,54 +1,65 @@
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import axios from 'axios';
-
 // Configuración de endpoints
-const API_URL = import.meta.env.VITE_API_URL || '';
-const AI_SERVICE_URL = import.meta.env.VITE_AI_SERVICE_URL || '';
+const API_URL = 'http://localhost:3003/api';
 
 // Configuración de Mapbox
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
+mapboxgl.accessToken = 'sk.eyJ1IjoiZW5ncm9kcmlndWV6YW5nZWwiLCJhIjoiY21hbjlpeTVoMHIwZzJscHIwZjNqdXZnYiJ9.nfczyIz3awY02n4GAC0MnQ';
 
 // Estado global
 let currentPosition = null;
 let map = null;
 let mediaStream = null;
+let marker = null;
 
 // Inicialización del mapa
 function initMap() {
-    map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [-74.0060, 40.7128], // Se actualizará con la ubicación del usuario
-        zoom: 12
-    });
+    // Obtener la ubicación actual del usuario
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                currentPosition = { lng: longitude, lat: latitude };
+                
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [longitude, latitude],
+                    zoom: 15
+                });
 
-    // Agregar controles
-    map.addControl(new mapboxgl.NavigationControl());
-    map.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: {
-            enableHighAccuracy: true
-        },
-        trackUserLocation: true
-    }));
+                // Agregar controles
+                map.addControl(new mapboxgl.NavigationControl());
+                map.addControl(new mapboxgl.GeolocateControl({
+                    positionOptions: {
+                        enableHighAccuracy: true
+                    },
+                    trackUserLocation: true,
+                    showUserLocation: true
+                }));
 
-    // Agregar geocoder
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        marker: true
-    });
-    map.addControl(geocoder);
+                // Evento de clic en el mapa
+                map.on('click', (e) => {
+                    currentPosition = e.lngLat;
+                    updateMarker();
+                });
 
-    // Evento de clic en el mapa
-    map.on('click', (e) => {
-        currentPosition = e.lngLat;
-        updateMarker();
-    });
+                // Colocar marcador inicial
+                updateMarker();
+            },
+            (error) => {
+                console.error('Error getting location:', error);
+                // Iniciar mapa en una ubicación por defecto
+                map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [-74.0060, 4.6097], // Bogotá
+                    zoom: 12
+                });
+            }
+        );
+    }
 }
 
-// Marcador en el mapa
-let marker = null;
+// Actualizar marcador en el mapa
 function updateMarker() {
     if (marker) marker.remove();
     marker = new mapboxgl.Marker()
@@ -60,14 +71,26 @@ function updateMarker() {
 const cameraPreview = document.getElementById('cameraPreview');
 const photoCanvas = document.getElementById('photoCanvas');
 const photoPreview = document.getElementById('photoPreview');
+const takePhotoButton = document.getElementById('takePhoto');
 
 async function initCamera() {
     try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' }
-        });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(device => device.kind === 'videoinput');
+        
+        // Intentar usar la cámara trasera primero
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
         cameraPreview.srcObject = mediaStream;
         cameraPreview.classList.remove('d-none');
+        takePhotoButton.classList.remove('d-none');
     } catch (error) {
         console.error('Error accessing camera:', error);
         alert('No se pudo acceder a la cámara. Por favor, verifica los permisos.');
@@ -80,7 +103,7 @@ function takePhoto() {
     photoCanvas.height = cameraPreview.videoHeight;
     context.drawImage(cameraPreview, 0, 0, photoCanvas.width, photoCanvas.height);
     
-    const photoData = photoCanvas.toDataURL('image/jpeg');
+    const photoData = photoCanvas.toDataURL('image/jpeg', 0.8);
     photoPreview.src = photoData;
     photoPreview.classList.remove('d-none');
     
@@ -90,10 +113,12 @@ function takePhoto() {
         mediaStream = null;
     }
     cameraPreview.classList.add('d-none');
+    takePhotoButton.classList.add('d-none');
 }
 
 // Event Listeners
 document.getElementById('openCamera').addEventListener('click', initCamera);
+document.getElementById('takePhoto').addEventListener('click', takePhoto);
 document.getElementById('uploadPhoto').addEventListener('click', () => {
     document.getElementById('photoInput').click();
 });

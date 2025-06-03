@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Usuario = require('../models/Usuario');
 const { validatePassword, validateEmail, loginRateLimit } = require('../middleware/auth');
 
 // Registro de usuario
@@ -10,41 +11,31 @@ router.post('/register', [validateEmail, validatePassword], async (req, res) => 
         const { nombre, email, password } = req.body;
 
         // Verificar si el usuario ya existe
-        const [existingUsers] = await req.app.locals.db.execute(
-            'SELECT id FROM usuarios WHERE email = ?',
-            [email]
-        );
+        const existingUser = await Usuario.findOne({ email });
 
-        if (existingUsers.length > 0) {
+        if (existingUser) {
             return res.status(400).json({
                 success: false,
                 message: 'El correo electrónico ya está registrado'
             });
         }
 
-        // Hash de la contraseña
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Insertar nuevo usuario
-        const [result] = await req.app.locals.db.execute(
-            'INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)',
-            [nombre, email, hashedPassword]
-        );
+        // Crear nuevo usuario
+        const usuario = await Usuario.create({
+            nombre,
+            email,
+            password
+        });
 
         // Generar token
-        const token = jwt.sign(
-            { id: result.insertId, email },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = usuario.getSignedJwtToken();
 
         res.status(201).json({
             success: true,
             message: 'Usuario registrado exitosamente',
             token,
             user: {
-                id: result.insertId,
+                id: usuario._id,
                 nombre,
                 email
             }
@@ -63,64 +54,46 @@ router.post('/login', [validateEmail, loginRateLimit], async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Buscar usuario
-        const [users] = await req.app.locals.db.execute(
-            'SELECT * FROM usuarios WHERE email = ?',
-            [email]
-        );
+        // Validar email y password
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Por favor proporcione email y contraseña'
+            });
+        }
 
-        if (users.length === 0) {
+        // Verificar usuario
+        const usuario = await Usuario.findOne({ email }).select('+password');
+
+        if (!usuario) {
             return res.status(401).json({
                 success: false,
                 message: 'Credenciales inválidas'
             });
         }
-
-        const user = users[0];
 
         // Verificar contraseña
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            // Incrementar contador de intentos fallidos
-            await req.app.locals.db.execute(
-                'UPDATE usuarios SET failed_login_attempts = failed_login_attempts + 1, last_attempt = NOW() WHERE id = ?',
-                [user.id]
-            );
+        const isMatch = await usuario.matchPassword(password);
 
-            // Verificar si debe bloquearse la cuenta
-            if (user.failed_login_attempts >= 4) {
-                await req.app.locals.db.execute(
-                    'UPDATE usuarios SET account_locked = 1 WHERE id = ?',
-                    [user.id]
-                );
-            }
-
+        if (!isMatch) {
             return res.status(401).json({
                 success: false,
                 message: 'Credenciales inválidas'
             });
         }
 
-        // Resetear contador de intentos fallidos
-        await req.app.locals.db.execute(
-            'UPDATE usuarios SET failed_login_attempts = 0, account_locked = 0 WHERE id = ?',
-            [user.id]
-        );
-
         // Generar token
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = usuario.getSignedJwtToken();
 
         res.json({
             success: true,
+            message: 'Login exitoso',
             token,
             user: {
-                id: user.id,
-                nombre: user.nombre,
-                email: user.email
+                id: usuario._id,
+                nombre: usuario.nombre,
+                email: usuario.email,
+                rol: usuario.rol
             }
         });
     } catch (error) {

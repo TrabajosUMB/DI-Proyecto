@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const Usuario = require('../models/Usuario');
 
 // Rate limiting
 const limiter = rateLimit({
@@ -28,7 +29,17 @@ const verifyToken = async (req, res, next) => {
         try {
             // Verificar el token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = decoded;
+            
+            // Buscar el usuario
+            const usuario = await Usuario.findById(decoded.id).select('-password');
+            if (!usuario) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'No autorizado - Usuario no encontrado'
+                });
+            }
+            
+            req.user = usuario;
             next();
         } catch (err) {
             // Verificar si el token está en la lista negra

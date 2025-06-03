@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const connectDB = require('./config/db');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,7 +14,7 @@ const port = process.env.PORT || 3000;
 // Middleware de seguridad
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -31,7 +31,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Servir archivos estáticos
-app.use(express.static(path.join(__dirname, '../templates')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Crear directorio de uploads si no existe
 const uploadDir = path.join(__dirname, '../uploads');
@@ -42,59 +42,36 @@ if (!require('fs').existsSync(uploadDir)) {
 // Servir archivos estáticos de uploads
 app.use('/uploads', express.static(uploadDir));
 
-// Conectar a MongoDB
-connectDB().then(() => {
+// Conectar a MongoDB y luego iniciar el servidor
+connectDB()
+    .then(() => {
+        console.log('MongoDB conectado exitosamente');
+        
+        // Rutas
+        app.use('/api/auth', require('./routes/auth'));
+        app.use('/api/denuncias', require('./routes/denuncias'));
+
+        // Ruta principal
+        app.get('/', (req, res) => {
+            res.json({ message: 'API de Denuncias Ciudadanas' });
+        });
+
+        // Manejo de errores
+        app.use((err, req, res, next) => {
+            console.error(err.stack);
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor',
+                error: process.env.NODE_ENV === 'development' ? err.message : {}
+            });
+        });
+
+        // Iniciar servidor
+        app.listen(port, () => {
+            console.log(`Servidor corriendo en http://localhost:${port}`);
+        });
+    })
+    .catch(error => {
         console.error('Error al conectar la base de datos:', error);
         process.exit(1);
     });
-
-// Base de datos
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-// Middleware para agregar la conexión a la base de datos a cada request
-app.use((req, res, next) => {
-    req.app.locals.db = pool;
-    next();
-});
-
-// Rutas
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/denuncias', require('./routes/denuncias'));
-
-// Ruta principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/index.html'));
-});
-
-// Ruta de login
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/login.html'));
-});
-
-// Ruta de registro
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../templates/register.html'));
-});
-
-// Manejo de errores
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Error interno del servidor',
-        error: process.env.NODE_ENV === 'development' ? err.message : {}
-    });
-});
-
-// Iniciar servidor
-app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
-});

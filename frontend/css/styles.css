@@ -1,12 +1,31 @@
+:root {
+    --primary-color: #FF6B00;     /* Naranja principal */
+    --primary-dark: #CC5500;      /* Naranja oscuro */
+    --primary-light: #FFB380;     /* Naranja claro */
+    --accent-color: #FF8533;      /* Naranja acento */
+    --background-light: #FFF5EB;  /* Fondo claro con tinte naranja */
+    --text-dark: #333333;         /* Texto oscuro */
+    --text-light: #FFFFFF;        /* Texto claro */
+    --error-color: #FF3B30;       /* Rojo para errores */
+    --success-color: #34C759;     /* Verde para éxito */
+}
+
 /* Estilos generales */
 body {
-    background-color: #f8fafc;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
 }
 
 /* Estilos del mapa */
 #map {
     width: 100%;
-    border-radius: 8px;
+    height: 400px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -14,16 +33,47 @@ body {
     width: 100%;
     max-width: none;
     box-shadow: none;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--primary-light);
+}
+
+.mapboxgl-ctrl-geocoder:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 0, 0.25);
 }
 
 /* Estilos de la cámara */
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
 #cameraPreview, #photoPreview {
     width: 100%;
     max-height: 400px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-top: 10px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-camera {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-camera:hover {
+    background-color: var(--primary-dark);
 }
 
 /* Animaciones */
@@ -37,14 +87,24 @@ body {
 
 /* Estilos de las cards */
 .card {
+    background-color: white;
     border: none;
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.5rem;
 }
 
 /* Botones personalizados */
@@ -52,33 +112,74 @@ body {
     border-radius: 8px;
     padding: 0.5rem 1rem;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
-    background-color: #4F46E5;
-    border-color: #4F46E5;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-light);
 }
 
 .btn-primary:hover {
-    background-color: #4338CA;
-    border-color: #4338CA;
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
 }
 
 /* Lista de denuncias */
-.report-card {
+.denuncia-item {
+    border-left: 4px solid var(--primary-color);
+    padding: 1rem;
     margin-bottom: 1rem;
+    background-color: white;
+    border-radius: 0 10px 10px 0;
+    transition: transform 0.3s ease;
 }
 
-.report-card .severity-high {
-    color: #DC2626;
+.denuncia-item:hover {
+    transform: translateX(5px);
 }
 
-.report-card .severity-medium {
-    color: #F59E0B;
+.severity-high {
+    border-left-color: var(--error-color);
 }
 
-.report-card .severity-low {
-    color: #10B981;
+.severity-medium {
+    border-left-color: var(--accent-color);
+}
+
+.severity-low {
+    border-left-color: var(--success-color);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
 }
 
 /* Responsive */
@@ -87,12 +188,20 @@ body {
         padding: 1rem;
     }
     
+    .card {
+        margin: 1rem 0;
+    }
+    
     #map {
-        height: 250px;
+        height: 300px;
     }
     
     .btn {
         width: 100%;
         margin-bottom: 0.5rem;
+    }
+    
+    .camera-container {
+        max-width: 100%;
     }
 }
