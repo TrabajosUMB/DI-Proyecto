@@ -19,6 +19,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    assetsInclude: ['**/*.svg'],
     rollupOptions: {
       output: {
         manualChunks: {
