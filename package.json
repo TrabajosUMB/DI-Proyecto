@@ -1,4 +1,10 @@
 {
+  "name": "civicalert",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -10,5 +16,8 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.0",
     "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
